@@ -1,0 +1,134 @@
+flowchart TB
+    %% =========================
+    %% Root
+    %% =========================
+    Root["Belive-FO-Client<br/>(Turborepo Monorepo)"]
+
+
+    %% =========================
+    %% Applications Layer
+    %% =========================
+    Root --> Apps
+
+    subgraph Apps["apps/"]
+        direction TB
+
+        Frontend["frontend<br/>(Next.js App)"]
+
+        Frontend --> AppRouter["App Router<br/>(src/app)"]
+        Frontend --> AppComponents["App Components"]
+        Frontend --> AppHooks["App Hooks"]
+        Frontend --> AppLib["App Lib<br/>(auth, utils)"]
+
+        AppRouter --> Dashboard["Dashboard Routes"]
+
+        Dashboard --> AttendancePage["/attendance"]
+        Dashboard --> LeavePage["/leave"]
+        Dashboard --> ClaimsPage["/claims"]
+    end
+
+
+    %% =========================
+    %% Packages Layer
+    %% =========================
+    Root --> Packages
+
+    subgraph Packages["packages/"]
+        direction TB
+
+
+        %% ---------- Shared ----------
+        subgraph Shared["shared<br/>(Infrastructure Layer)"]
+            direction TB
+
+            SharedComponents["UI Components"]
+            SharedHooks["Auth & Permission Hooks"]
+            SharedLib["Core Lib<br/>(API Client, RBAC, Event Bus)"]
+            SharedStores["Global Stores"]
+            SharedTypes["Shared Types"]
+        end
+
+
+        %% ---------- Attendance ----------
+        subgraph Attendance["attendance<br/>(Domain Module)"]
+            direction TB
+
+            subgraph AttendanceFeatures["features"]
+                AttendanceRecords["attendance-records"]
+                AttendanceSchedules["schedules"]
+                AttendanceOvertime["overtime"]
+                AttendanceReports["reports"]
+            end
+
+            subgraph AttendanceViews["views<br/>(Role-Based)"]
+                AttSuperAdmin["SuperAdminView"]
+                AttAdmin["AdminView"]
+                AttStaff["StaffView"]
+            end
+
+            AttendanceShared["shared<br/>(Module-level reuse)"]
+        end
+
+
+        %% ---------- Leave ----------
+        subgraph Leave["leave<br/>(Domain Module)"]
+            direction TB
+
+            subgraph LeaveFeatures["features"]
+                LeaveRequests["leave-requests"]
+                LeaveBalance["leave-balance"]
+                LeaveApprovals["approvals"]
+                LeaveCalendar["calendar"]
+            end
+
+            subgraph LeaveViews["views<br/>(Role-Based)"]
+                LeaveSuperAdmin["SuperAdminView"]
+                LeaveAdmin["AdminView"]
+                LeaveStaff["StaffView"]
+            end
+
+            LeaveShared["shared<br/>(Module-level reuse)"]
+        end
+
+
+        %% ---------- Claim ----------
+        subgraph Claim["claims<br/>(Domain Module)"]
+            direction TB
+
+            subgraph ClaimsFeatures["features"]
+                ClaimSubmission["claim-submission"]
+                ClaimApproval["claim-approval"]
+                ClaimHistory["claim-history"]
+                Reimbursement["reimbursement"]
+            end
+
+            subgraph ClaimsViews["views<br/>(Role-Based)"]
+                ClaimsSuperAdmin["SuperAdminView"]
+                ClaimsAdmin["AdminView"]
+                ClaimsStaff["StaffView"]
+            end
+
+            ClaimsShared["shared<br/>(Module-level reuse)"]
+        end
+
+
+        %% ---------- SDK ----------
+        subgraph LarkSDK["lark-sdk"]
+            LarkAPI["Lark APIs"]
+        end
+    end
+
+
+    %% =========================
+    %% Dependency Flow
+    %% =========================
+    Frontend --> Shared
+    Frontend --> Attendance
+    Frontend --> Leave
+    Frontend --> Claims
+
+    Attendance --> Shared
+    Leave --> Shared
+    Claim --> Shared
+
+    Shared --> LarkSDK
