@@ -53,4 +53,8 @@ Thumbs.db
 .temp/
 .tmp/
 
+# Personal TODO files
+TODO.md
+TODO-*.md
+
 
